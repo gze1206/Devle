@@ -31,3 +31,7 @@ lerna-debug.log*
 
 # misc
 .DS_Store
+
+# SQLite
+prisma/*.db
+prisma/*.db-journal

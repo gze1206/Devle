@@ -42,6 +42,12 @@ function Test() {
                 })
     
                 document.getElementById('result')!.innerText = auth.user.global_name || auth.user.username//'Authenticate DONE'
+
+                if (auth.user.avatar != null) {
+                    const img = document.createElement('img')
+                    img.setAttribute('src', `https://cdn.discordapp.com/avatars/${auth.user.id}/${auth.user.avatar}.jpg`)
+                    document.body.appendChild(img)
+                }
             } catch (err) {
                 let message = 'Unknown Error'
                 if (err instanceof Error) message = err.message

@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 export default defineConfig(({ mode }) => {
   if (mode === "client") {
     return {
+      envDir: '.',
       build: {
         rollupOptions: {
           input: './src/client.tsx',
@@ -17,6 +18,7 @@ export default defineConfig(({ mode }) => {
     }
   } else {
     return {
+      envDir: '.',
       ssr: {
         external: ['react', 'react-dom']
       },

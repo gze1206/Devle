@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            Int       @id @default(autoincrement())
+  discordUid    Int       @unique
+  isAdmin       Boolean   @default(false)
+}
+
 model Word {
   id            Int       @id @default(autoincrement())
   name          String    @unique

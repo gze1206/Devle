@@ -11,8 +11,17 @@ datasource db {
 }
 
 model Word {
-  id            Int     @id @default(autoincrement())
-  name          String  @unique
+  id            Int       @id @default(autoincrement())
+  name          String    @unique
   description   String?
   isDevKeyword  Boolean
+
+  TodayWord TodayWord[]
+}
+
+model TodayWord {
+  id          Int         @id @default(autoincrement())
+  date        DateTime    @unique
+  wordId      Int
+  word        Word        @relation(fields: [wordId], references: [id])
 }

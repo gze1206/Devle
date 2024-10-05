@@ -1,13 +1,17 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Loading from "../components/loading"
 import discord from "../clientDiscord"
+import './title.css'
 
 function Test() {
+    const [isLoading, setLoading] = useState(false)
     const navigate = useNavigate()
     let auth
 
     useEffect(() => {
         (async () => {
+            setLoading(true)
             await discord.ready();
 
             const { code } = await discord.commands.authorize({
@@ -51,6 +55,8 @@ function Test() {
                 if (!res.ok) {
                     throw new Error('AUTH FAILED')
                 }
+
+                setLoading(false)
             } catch (err) {
                 let message = 'Unknown Error'
                 if (err instanceof Error) message = err.message
@@ -60,7 +66,9 @@ function Test() {
     }, [])
 
     return (
-        <div>
+        <div id="main">
+            <button id="start" onClick={() => navigate('/ingame')}>START</button>
+            <Loading isLoading={isLoading}/>
         </div>
     )
 }

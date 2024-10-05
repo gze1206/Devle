@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import useStore from "../store"
 import Loading from "../components/loading"
 import discord from "../clientDiscord"
 import './title.css'
@@ -7,48 +8,57 @@ import './title.css'
 function Test() {
     const [isLoading, setLoading] = useState(false)
     const navigate = useNavigate()
-    let auth
+    const { user } = useStore.user()
+    const setUser = useStore.user(state => state.setUser)
 
     useEffect(() => {
         (async () => {
+            let accessToken
+            
             setLoading(true)
-            await discord.ready();
-
-            const { code } = await discord.commands.authorize({
-                client_id: import.meta.env.VITE_DISCORD_CLIENT_ID,
-                response_type: 'code',
-                state: '',
-                prompt: 'none',
-                scope: [
-                    'identify',
-                    'guilds',
-                    'applications.commands'
-                ],
-            })
+            await discord.ready()
 
             try {
-                let res = await fetch('/api/user/token', {
-                    method: 'POST',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        code,
+                if (user) {
+                    accessToken = user.accessToken
+                } else {
+                    const { code } = await discord.commands.authorize({
+                        client_id: import.meta.env.VITE_DISCORD_CLIENT_ID,
+                        response_type: 'code',
+                        state: '',
+                        prompt: 'none',
+                        scope: [
+                            'identify',
+                            'guilds',
+                            'applications.commands'
+                        ],
                     })
-                })
-                const { access_token } = await res.json()
     
-                auth = await discord.commands.authenticate({
-                    access_token,
-                })
+                    let res = await fetch('/api/user/token', {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            code,
+                        })
+                    })
+                    const { access_token } = await res.json()
 
-                res = await fetch('/api/user/auth', {
+                    await discord.commands.authenticate({
+                        access_token: accessToken,
+                    })
+                    
+                    accessToken = access_token
+                }
+
+                const res = await fetch('/api/user/auth', {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        access_token,
+                        access_token: accessToken,
                     })
                 })
 
@@ -56,11 +66,19 @@ function Test() {
                     throw new Error('AUTH FAILED')
                 }
 
+                const { nickname, profilePictureUrl } = await res.json()
+
+                setUser({
+                    accessToken,
+                    nickname,
+                    profilePictureUrl,
+                })
+
                 setLoading(false)
             } catch (err) {
                 let message = 'Unknown Error'
                 if (err instanceof Error) message = err.message
-                alert(message)
+                document.getElementById('start')!.innerText = JSON.stringify(err)
             }
         })()
     }, [])

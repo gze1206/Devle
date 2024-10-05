@@ -36,9 +36,13 @@ api.post('/user/auth', async (c) => {
     const { access_token } = await c.req.json()
 
     let discordUid : string
+    let nickname : string
+    let profilePictureUrl : string | null
 
     if (access_token === 'mock_token') {
         discordUid = "MOCK_DISCORD_UID"
+        nickname = "MOCK_NAME"
+        profilePictureUrl = null
     } else {
         const res = await fetch(`${process.env.DISCORD_API_HOST}/users/@me`, {
             method: 'GET',
@@ -48,8 +52,10 @@ api.post('/user/auth', async (c) => {
             }
         })
     
-        const { id } = await res.json()
+        const { id, username, global_name, avatar } = await res.json()
         discordUid = id
+        nickname = global_name || username
+        profilePictureUrl = avatar ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.jpg` : null
     }
 
 
@@ -68,7 +74,10 @@ api.post('/user/auth', async (c) => {
         })
     })
 
-    return c.json({})
+    return c.json({
+        nickname,
+        profilePictureUrl,
+    })
 })
 
 export default api

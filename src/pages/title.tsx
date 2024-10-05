@@ -9,7 +9,6 @@ function Test() {
     useEffect(() => {
         (async () => {
             await discord.ready();
-            document.getElementById('result')!.innerText = 'Discord SDK is ready'
 
             const { code } = await discord.commands.authorize({
                 client_id: import.meta.env.VITE_DISCORD_CLIENT_ID,
@@ -22,10 +21,9 @@ function Test() {
                     'applications.commands'
                 ],
             })
-            document.getElementById('result')!.innerText = 'Authorize DONE'
 
             try {
-                const res = await fetch('/api/user/token', {
+                let res = await fetch('/api/user/token', {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
@@ -35,31 +33,34 @@ function Test() {
                     })
                 })
                 const { access_token } = await res.json()
-                document.getElementById('result')!.innerText = 'POST token DONE'
     
                 auth = await discord.commands.authenticate({
                     access_token,
                 })
-    
-                document.getElementById('result')!.innerText = auth.user.global_name || auth.user.username//'Authenticate DONE'
 
-                if (auth.user.avatar != null) {
-                    const img = document.createElement('img')
-                    img.setAttribute('src', `https://cdn.discordapp.com/avatars/${auth.user.id}/${auth.user.avatar}.jpg`)
-                    document.body.appendChild(img)
+                res = await fetch('/api/user/auth', {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        access_token,
+                    })
+                })
+
+                if (!res.ok) {
+                    throw new Error('AUTH FAILED')
                 }
             } catch (err) {
                 let message = 'Unknown Error'
                 if (err instanceof Error) message = err.message
-                document.getElementById('result')!.innerText = message
+                alert(message)
             }
         })()
     }, [])
 
     return (
         <div>
-            <h1>TITLE</h1>
-            <div id="result">LOADING...</div>
         </div>
     )
 }

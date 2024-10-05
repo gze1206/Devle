@@ -1,15 +1,11 @@
 import { Hono } from 'hono'
 import dotenv from 'dotenv'
+import { PrismaClient } from '@prisma/client'
 
 dotenv.config()
 
 const api = new Hono()
-
-api.get('/user', async (c) => {
-    return c.json({
-        id: 'TEST',
-    })
-})
+const prisma = new PrismaClient()
 
 api.post('/user/token', async (c) => {
     const { code } = await c.req.json()
@@ -34,6 +30,45 @@ api.post('/user/token', async (c) => {
     const { access_token } = await res.json()
 
     return c.json({ access_token })
+})
+
+api.post('/user/auth', async (c) => {
+    const { access_token } = await c.req.json()
+
+    let discordUid : string
+
+    if (access_token === 'mock_token') {
+        discordUid = "MOCK_DISCORD_UID"
+    } else {
+        const res = await fetch(`${process.env.DISCORD_API_HOST}/users/@me`, {
+            method: 'GET',
+            headers: {
+                "Authorization": `Bearer ${access_token}`,
+                "Content-Type": "application/x-www-form-urlencoded" 
+            }
+        })
+    
+        const { id } = await res.json()
+        discordUid = id
+    }
+
+
+    await prisma.$transaction(async tx => {
+        const found = await tx.user.findFirst({
+            where: { discordUid },
+        })
+
+        if (found) return found
+
+        return await tx.user.create({
+            data: {
+                discordUid,
+                isAdmin: false,
+            }
+        })
+    })
+
+    return c.json({})
 })
 
 export default api

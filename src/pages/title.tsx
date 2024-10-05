@@ -72,6 +72,7 @@ function Test() {
                     accessToken,
                     nickname,
                     profilePictureUrl,
+                    guildId: discord.guildId
                 })
 
                 setLoading(false)

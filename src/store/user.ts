@@ -5,6 +5,7 @@ interface User {
     accessToken: string
     nickname: string
     profilePictureUrl: string | null
+    guildId: string | null
 }
 
 interface UserState {

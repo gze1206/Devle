@@ -43,4 +43,6 @@ model Ranking {
   user      User          @relation(fields: [userId], references: [id])
   answerId  Int
   answer    TodayWord     @relation(fields: [answerId], references: [id])
+  tries     Int
+  timestamp DateTime      @default(now())
 }

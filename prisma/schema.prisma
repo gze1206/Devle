@@ -14,15 +14,18 @@ model User {
   id            Int       @id @default(autoincrement())
   discordUid    Int       @unique
   isAdmin       Boolean   @default(false)
+
+  rankings      Ranking[]
 }
 
 model Word {
   id            Int       @id @default(autoincrement())
   name          String    @unique
   description   String?
+  length        Int
   isDevKeyword  Boolean
 
-  TodayWord TodayWord[]
+  todayWords    TodayWord[]
 }
 
 model TodayWord {
@@ -30,4 +33,14 @@ model TodayWord {
   date        DateTime    @unique
   wordId      Int
   word        Word        @relation(fields: [wordId], references: [id])
+
+  rankings    Ranking[]
+}
+
+model Ranking {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id])
+  answerId  Int
+  answer    TodayWord     @relation(fields: [answerId], references: [id])
 }

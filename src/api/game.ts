@@ -163,7 +163,7 @@ api.post('/game/answer', AuthMiddleware, async (c) => {
 
         for (let i = 0; i < dailyWord.length; i++) {
             if (correctAnswer[i] === answer[i]) {
-                remainLetters = remainLetters.slice(0, i) + remainLetters.slice(i + 1)
+                remainLetters = remainLetters.replace(answer[i], '')
                 results.push({ value: answer[i], type: 'strike' })
             } else {
                 results.push({ value: answer[i], type: 'out' })
@@ -173,7 +173,7 @@ api.post('/game/answer', AuthMiddleware, async (c) => {
         for (let i = 0; i < dailyWord.length; i++) {
             if (correctAnswer[i] === answer[i] || !remainLetters.includes(answer[i])) continue
 
-            remainLetters = remainLetters.slice(0, i) + remainLetters.slice(i + 1)
+            remainLetters = remainLetters.replace(answer[i], '')
             results[i].type = 'ball'
         }
 

@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
 import dotenv from 'dotenv'
+import jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
+import { setCookie } from 'hono/cookie'
 
 dotenv.config()
 
@@ -59,19 +61,49 @@ api.post('/user/auth', async (c) => {
     }
 
 
-    await prisma.$transaction(async tx => {
-        const found = await tx.user.findFirst({
+    const token = await prisma.$transaction(async tx => {
+        let user = await tx.user.findFirst({
             where: { discordUid },
         })
 
-        if (found) return found
+        if (!user) {
+            user = await tx.user.create({
+                data: {
+                    discordUid,
+                    isAdmin: false,
+                }
+            })
+        }
 
-        return await tx.user.create({
+        const expiredAt = Date.now() + 1000 * 60 * 60 * 24
+
+        const session = await tx.session.create({
             data: {
-                discordUid,
-                isAdmin: false,
-            }
+                userId: user.id,
+                token: '',
+                expiredAt: new Date(expiredAt),
+            },
         })
+
+        const token = jwt.sign(
+            { sessionId: session.id, userId: user.id },
+            process.env.JWT_SECRET!,
+            { expiresIn: '24h' }
+        )
+
+        await tx.session.update({
+            where: { id: session.id },
+            data: { token },
+        })
+
+        return token
+    })
+
+    setCookie(c, 'token', token, {
+        path: '/',
+        secure: true,
+        httpOnly: true,
+        sameSite: 'Strict',
     })
 
     return c.json({

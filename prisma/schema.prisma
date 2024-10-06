@@ -15,7 +15,19 @@ model User {
   discordUid    String    @unique
   isAdmin       Boolean   @default(false)
 
+  sessions      Session[]
+  answers       TodayWordAnswer[]
   rankings      Ranking[]
+}
+
+model Session {
+  id            Int       @id @default(autoincrement())
+  token         String    @unique
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id])
+  gameId        Int?
+  createdAt     DateTime  @default(now())
+  expiredAt     DateTime
 }
 
 model Word {
@@ -34,6 +46,7 @@ model TodayWord {
   wordId      Int
   word        Word        @relation(fields: [wordId], references: [id])
 
+  answers     TodayWordAnswer[]
   rankings    Ranking[]
 }
 
@@ -45,4 +58,16 @@ model Ranking {
   answer    TodayWord     @relation(fields: [answerId], references: [id])
   tries     Int
   timestamp DateTime      @default(now())
+}
+
+model TodayWordAnswer {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id])
+  gameId    Int
+  game      TodayWord     @relation(fields: [gameId], references: [id])
+  answer    String
+  try       Int
+  results   String
+  createdAt DateTime      @default(now())
 }

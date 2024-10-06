@@ -2,10 +2,12 @@ import { Hono } from 'hono'
 import { renderToString } from 'react-dom/server'
 
 import UserApi from './api/user'
+import GameApi from './api/game'
 
 const app = new Hono()
 
 app.route('/api', UserApi)
+app.route('/api', GameApi)
 
 app.get('/', (c) => {
   const isProd = process.env.NODE_ENV === "production" || import.meta.env.PROD

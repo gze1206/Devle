@@ -2,7 +2,6 @@ import { Hono } from 'hono'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
-import { setCookie } from 'hono/cookie'
 
 dotenv.config()
 
@@ -99,14 +98,8 @@ api.post('/user/auth', async (c) => {
         return token
     })
 
-    setCookie(c, 'token', token, {
-        path: '/',
-        secure: true,
-        httpOnly: true,
-        sameSite: 'Strict',
-    })
-
     return c.json({
+        sessionToken: token,
         nickname,
         profilePictureUrl,
     })

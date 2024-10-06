@@ -83,31 +83,40 @@ function InGame() {
 
     useEffect(() => {
         (async () => {
-            setLoading(true)
-
-            const res = await fetch('/api/game/start', {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-
+            try {
+                setLoading(true)
+    
+                const res = await fetch('/api/game/start', {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": user?.sessionToken || "",
+                    },
+                    body: JSON.stringify({
+    
+                    })
                 })
-            })
-
-            if (!res.ok) {
-                const { error } = await res.json()
-                console.log(error)
-                return
+    
+                if (!res.ok) {
+                    const error = await res.json()
+                    const el = document.createElement('div')
+                    el.innerText = JSON.stringify(error)
+                    document.getElementById('game_main')?.appendChild(el)
+                    return
+                }
+    
+                const gameInfo: { wordLength: number, maxTry: number, hasCorrect: boolean, currentTry: number, results: Result[][] } = await res.json()
+                setHasCorrect(gameInfo.hasCorrect)
+                setWordLength(gameInfo.wordLength)
+                setTries(gameInfo.maxTry)
+                setCurrentTry(gameInfo.currentTry)
+                setResults(gameInfo.results)
+                setLoading(false)
+            } catch (error) {
+                const el = document.createElement('div')
+                el.innerText = JSON.stringify(error)
+                document.getElementById('game_main')?.appendChild(el)
             }
-
-            const gameInfo: { wordLength: number, maxTry: number, hasCorrect: boolean, currentTry: number, results: Result[][] } = await res.json()
-            setHasCorrect(gameInfo.hasCorrect)
-            setWordLength(gameInfo.wordLength)
-            setTries(gameInfo.maxTry)
-            setCurrentTry(gameInfo.currentTry)
-            setResults(gameInfo.results)
-            setLoading(false)
         })()
     }, [])
 
@@ -139,11 +148,20 @@ function InGame() {
                         method: 'POST',
                         headers: {
                             "Content-Type": "application/json",
+                            "Authorization": user?.sessionToken || "",
                         },
                         body: JSON.stringify({
                             answer: input.join('')
                         })
                     })
+
+                    if (!res.ok) {
+                        const error = await res.json()
+                        const el = document.createElement('div')
+                        el.innerText = JSON.stringify(error)
+                        document.getElementById('game_main')?.appendChild(el)
+                        return
+                    }
 
                     const { isCorrect, results: newResults } = await res.json()
 
@@ -172,7 +190,7 @@ function InGame() {
     }, [isLoading, results, currentInput, wordLength])
 
     return (
-        <Main>
+        <Main id="game_main">
             { renderPrevs() }
             { renderCurrent() }
             { renderNexts() }

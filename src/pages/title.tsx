@@ -66,9 +66,10 @@ function Test() {
                     throw new Error('AUTH FAILED')
                 }
 
-                const { nickname, profilePictureUrl } = await res.json()
+                const { sessionToken, nickname, profilePictureUrl } = await res.json()
 
                 setUser({
+                    sessionToken,
                     accessToken,
                     nickname,
                     profilePictureUrl,
@@ -86,7 +87,7 @@ function Test() {
 
     return (
         <div id="main">
-            <button id="start" onClick={() => navigate('/ingame')}>START</button>
+            <button id="start" onClick={() => navigate('/ingame')}>PLAY WITH DAILY WORD</button>
             <Loading isLoading={isLoading}/>
         </div>
     )

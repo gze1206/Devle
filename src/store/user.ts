@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 
 interface User {
     accessToken: string
+    sessionToken: string
     nickname: string
     profilePictureUrl: string | null
     guildId: string | null

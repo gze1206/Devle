@@ -1,5 +1,4 @@
 import { Context } from "hono";
-import { getCookie } from "hono/cookie";
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import { PrismaClient } from '@prisma/client'
@@ -9,7 +8,7 @@ const prisma = new PrismaClient()
 dotenv.config()
 
 async function Auth(c: Context, next: () => Promise<void>) {
-    const token = getCookie(c, 'token')
+    const token = c.req.header('Authorization')
 
     if (!token) return c.json({ error: 'Unauthorized' }, 401)
 

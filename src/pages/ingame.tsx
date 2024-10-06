@@ -4,7 +4,7 @@ import LetterBlock from "../components/letterBlock"
 import Loading from "../components/loading"
 import { useEffect, useState } from "react"
 
-const Main = styled.div`
+const IngameMain = styled.div`
     padding-top: 2em;
 `
 
@@ -101,7 +101,7 @@ function InGame() {
                     const error = await res.json()
                     const el = document.createElement('div')
                     el.innerText = JSON.stringify(error)
-                    document.getElementById('game_main')?.appendChild(el)
+                    document.getElementById('ingame_main')?.appendChild(el)
                     return
                 }
     
@@ -115,7 +115,7 @@ function InGame() {
             } catch (error) {
                 const el = document.createElement('div')
                 el.innerText = JSON.stringify(error)
-                document.getElementById('game_main')?.appendChild(el)
+                document.getElementById('ingame_main')?.appendChild(el)
             }
         })()
     }, [])
@@ -159,7 +159,7 @@ function InGame() {
                         const error = await res.json()
                         const el = document.createElement('div')
                         el.innerText = JSON.stringify(error)
-                        document.getElementById('game_main')?.appendChild(el)
+                        document.getElementById('ingame_main')?.appendChild(el)
                         return
                     }
 
@@ -190,12 +190,12 @@ function InGame() {
     }, [isLoading, results, currentInput, wordLength])
 
     return (
-        <Main id="game_main">
+        <IngameMain id="ingame_main">
             { renderPrevs() }
             { renderCurrent() }
             { renderNexts() }
             <Loading isLoading={isLoading} />
-        </Main>
+        </IngameMain>
     )
 }
 

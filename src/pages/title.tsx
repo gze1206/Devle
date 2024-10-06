@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import styled from "styled-components"
 import useStore from "../store"
 import Loading from "../components/loading"
 import discord from "../clientDiscord"
-import './title.css'
+
+const TitleMain = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
 
 function Test() {
     const [isLoading, setLoading] = useState(false)
@@ -86,10 +94,10 @@ function Test() {
     }, [])
 
     return (
-        <div id="main">
+        <TitleMain>
             <button id="start" onClick={() => navigate('/ingame')}>PLAY WITH DAILY WORD</button>
             <Loading isLoading={isLoading}/>
-        </div>
+        </TitleMain>
     )
 }
 

@@ -10,7 +10,10 @@ dotenv.config()
 async function Auth(c: Context, next: () => Promise<void>) {
     const token = c.req.header('Authorization')
 
-    if (!token) return c.json({ error: 'Unauthorized' }, 401)
+    if (!token) {
+        console.error('TOKEN NOT FOUND')
+        return c.json({ error: 'Unauthorized' }, 401)
+    }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
@@ -26,6 +29,7 @@ async function Auth(c: Context, next: () => Promise<void>) {
         })
 
         if (!session || session.token !== token || session.expiredAt <= new Date() || !session.user || session.user.id !== decoded.userId) {
+            console.error('INVALID TOKEN', session?.expiredAt, session?.token, session?.userId, decoded.sessionId, decoded.userId)
             return c.json({ error: 'Unauthorized' }, 401)
         }
 
@@ -35,7 +39,7 @@ async function Auth(c: Context, next: () => Promise<void>) {
 
         await next()
     } catch (error) {
-        console.error('Error on JWT Verification : ', error)
+        console.error('Error on JWT Verification : ', JSON.stringify(error))
         return c.json({ error: 'Unauthorized' }, 401)
     }
 }

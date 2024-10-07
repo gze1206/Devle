@@ -98,10 +98,7 @@ function InGame() {
                 })
     
                 if (!res.ok) {
-                    const error = await res.json()
-                    const el = document.createElement('div')
-                    el.innerText = JSON.stringify(error)
-                    document.getElementById('ingame_main')?.appendChild(el)
+                    console.error('FAILED TO START GAME', JSON.stringify(await res.json()))
                     return
                 }
     
@@ -113,9 +110,9 @@ function InGame() {
                 setResults(gameInfo.results)
                 setLoading(false)
             } catch (error) {
-                const el = document.createElement('div')
-                el.innerText = JSON.stringify(error)
-                document.getElementById('ingame_main')?.appendChild(el)
+                let message = 'Unknown Error'
+                if (error instanceof Error) message = error.message
+                console.error(message, JSON.stringify(error))
             }
         })()
     }, [])
@@ -144,32 +141,35 @@ function InGame() {
                 if (currentInput.length == wordLength) {
                     setLoading(true)
                     const input = [...currentInput]
-                    const res = await fetch('/api/game/answer', {
-                        method: 'POST',
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": user?.sessionToken || "",
-                        },
-                        body: JSON.stringify({
-                            answer: input.join('')
+                    try {
+                        const res = await fetch('/api/game/answer', {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": user?.sessionToken || "",
+                            },
+                            body: JSON.stringify({
+                                answer: input.join('')
+                            })
                         })
-                    })
-
-                    if (!res.ok) {
-                        const error = await res.json()
-                        const el = document.createElement('div')
-                        el.innerText = JSON.stringify(error)
-                        document.getElementById('ingame_main')?.appendChild(el)
-                        return
+    
+                        if (!res.ok) {
+                            console.error('FAILED TO SEND ANSWER', JSON.stringify(await res.json()))
+                            return
+                        }
+    
+                        const { isCorrect, results: newResults } = await res.json()
+    
+                        if (isCorrect === true) setHasCorrect(true)
+                        setResults(old => [...(old || []), newResults])
+                        setCurrentTry(old => old + 1)
+                        setCurrentInput([])
+                        setLoading(false)
+                    } catch (error) {
+                        let message = 'Unknown Error'
+                        if (error instanceof Error) message = error.message
+                        console.error(message, JSON.stringify(error))
                     }
-
-                    const { isCorrect, results: newResults } = await res.json()
-
-                    if (isCorrect === true) setHasCorrect(true)
-                    setResults(old => [...(old || []), newResults])
-                    setCurrentTry(old => old + 1)
-                    setCurrentInput([])
-                    setLoading(false)
                 }
 
                 return

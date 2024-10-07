@@ -53,7 +53,7 @@ function Test() {
                     })
 
                     if (!res.ok) {
-                        console.error('FAILED TO TOKEN API', code, await res.json())
+                        console.error('FAILED TO TOKEN API', code?.length, JSON.stringify(await res.json()))
                         return;
                     }
 
@@ -66,7 +66,7 @@ function Test() {
                     if (auth) {
                         console.log(`Hello, ${auth.user.username}!`)
                     } else {
-                        console.error('FAILED TO AUTH', access_token)
+                        console.error('FAILED TO AUTH', code?.length, access_token?.length)
                         return
                     }
 
@@ -84,7 +84,7 @@ function Test() {
                 })
 
                 if (!res.ok) {
-                    console.error('FAILED TO AUTH API', accessToken, await res.json())
+                    console.error('FAILED TO AUTH API', accessToken?.length, JSON.stringify(await res.json()))
                     return;
                 }
 

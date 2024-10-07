@@ -42,7 +42,7 @@ function Test() {
                         ],
                     })
     
-                    let res = await fetch('/api/user/token', {
+                    const res = await fetch('/api/user/token', {
                         method: 'POST',
                         headers: {
                             "Content-Type": "application/json",
@@ -51,12 +51,19 @@ function Test() {
                             code,
                         })
                     })
-                    const { access_token } = await res.json()
-                    accessToken = access_token
 
+                    if (!res.ok) {
+                        console.error('FAILED TO TOKEN API', code, await res.json())
+                        return;
+                    }
+
+                    const { access_token } = await res.json()
+                    
                     await discord.commands.authenticate({
-                        access_token: accessToken,
+                        access_token,
                     })
+
+                    accessToken = access_token
                 }
 
                 const res = await fetch('/api/user/auth', {
@@ -70,7 +77,8 @@ function Test() {
                 })
 
                 if (!res.ok) {
-                    throw new Error('AUTH FAILED')
+                    console.error('FAILED TO AUTH API', accessToken, await res.json())
+                    return;
                 }
 
                 const { sessionToken, nickname, profilePictureUrl } = await res.json()
@@ -87,7 +95,7 @@ function Test() {
             } catch (err) {
                 let message = 'Unknown Error'
                 if (err instanceof Error) message = err.message
-                document.getElementById('start')!.innerText = JSON.stringify(err)
+                console.error(message, JSON.stringify(err))
             }
         })()
     }, [])

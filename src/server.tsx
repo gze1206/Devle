@@ -20,7 +20,7 @@ app.get('/', (c) => {
           <meta content="width=device-width, initial-scale=1" name="viewport" />
           <link rel="stylesheet" href="/static/simple.min.css" />
           {isProd ? (
-              <script type="module" src="/static/client.js"></script>
+              <script type="module" src="/static/client.js?v=0.1.0"></script>
           ) : (
               <script type="module" src="/src/client.tsx"></script>
           )}

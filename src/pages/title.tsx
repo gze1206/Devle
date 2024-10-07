@@ -59,9 +59,16 @@ function Test() {
 
                     const { access_token } = await res.json()
                     
-                    await discord.commands.authenticate({
+                    const auth = await discord.commands.authenticate({
                         access_token,
                     })
+
+                    if (auth) {
+                        console.log(`Hello, ${auth.user.username}!`)
+                    } else {
+                        console.error('FAILED TO AUTH', access_token)
+                        return
+                    }
 
                     accessToken = access_token
                 }

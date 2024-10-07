@@ -29,7 +29,7 @@ const LetterInput = styled.label`
 
     &.ball {
         border: none;
-        background-color: #a89738;
+        background-color: #d1bf56;
     }
 
     &.out {

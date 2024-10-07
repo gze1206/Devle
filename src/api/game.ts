@@ -81,7 +81,7 @@ api.post('/game/start', AuthMiddleware, async (c) => {
     let { mode }: { mode: GameMode } = await c.req.json()
     mode ??= 'daily'
 
-    console.log('[/game/start] BEGIN', sessionId, user.id, mode)
+    console.log('[/game/start] BEGIN', JSON.stringify({ sessionId, userId: user.id, mode }))
 
     if (mode === 'daily') {
         try {
@@ -113,7 +113,7 @@ api.post('/game/start', AuthMiddleware, async (c) => {
             })
     
             if (dailyGame == null) {
-                console.error('[/game/start] FAILED - word db is empty', sessionId, user.id, mode)
+                console.error('[/game/start] FAILED - word db is empty', JSON.stringify({ sessionId, userId: user.id, mode }))
                 return c.json({ error: 'Word DB is empty '}, 404)
             }
     
@@ -129,7 +129,7 @@ api.post('/game/start', AuthMiddleware, async (c) => {
                 });
             }
     
-            console.log('[/game/start] DONE', sessionId, user.id, mode, currentTry)
+            console.log('[/game/start] DONE', JSON.stringify({ sessionId, userId: user.id, mode, currentTry }))
             return c.json({
                 wordLength: dailyGame.word.length,
                 maxTry: parseInt(process.env.DAILY_MAX_TRY!),
@@ -138,12 +138,12 @@ api.post('/game/start', AuthMiddleware, async (c) => {
                 results,
             })
         } catch (error) {
-            console.error('[/game/start] ERROR', sessionId, user.id, mode, JSON.stringify(error))
+            console.error('[/game/start] ERROR', JSON.stringify({ sessionId, userId: user.id, mode }), JSON.stringify(error))
             return c.json({ error }, 500)
         }
     }
 
-    console.log('[/game/start] FAILED - unknown game mode', sessionId, user.id, mode)
+    console.log('[/game/start] FAILED - unknown game mode', JSON.stringify({ sessionId, userId: user.id, mode }))
     
     return c.json({ error: 'Unknown game mode' }, 400)
 })
@@ -154,19 +154,21 @@ api.post('/game/answer', AuthMiddleware, async (c) => {
     mode ??= 'daily'
     answer = answer.toUpperCase()
 
-    console.log('[/game/answer] BEGIN', user.id, mode, answer)
+    console.log('[/game/answer] BEGIN', JSON.stringify({ userId: user.id, mode, answer }))
 
     if (mode === 'daily') {
         try {
                 const dailyGame = await getDailyGame()
         
                 if (dailyGame == null) {
+                    console.error('[/game/answer] word db is empty', JSON.stringify({ userId: user.id, mode, answer }))
                     return c.json({ error: 'Word DB is empty '}, 404)
                 }
         
                 const dailyWord = dailyGame.word
         
                 if (answer.length !== dailyWord.length) {
+                    console.error('[/game/answer] invalid answer', JSON.stringify({ userId: user.id, mode, answer, dailyWordLength: dailyWord.length }))
                     return c.json({ error: 'Invalid answer' }, 400)
                 }
         
@@ -205,7 +207,7 @@ api.post('/game/answer', AuthMiddleware, async (c) => {
                     const currentTry = (prev?.try || 0) + 1
         
                     if (prev?.answer === correctAnswer || parseInt(process.env.DAILY_MAX_TRY!) < currentTry) {
-                        console.error('[/game/answer] FAILED - over try', user.id, mode, answer)
+                        console.error('[/game/answer] FAILED - over try', JSON.stringify({ userId: user.id, mode, answer }))
                         return c.json({ error: 'over try' }, 400)
                     }
         
@@ -219,17 +221,17 @@ api.post('/game/answer', AuthMiddleware, async (c) => {
                         }
                     })
         
-                    console.log('[/game/answer] DONE', user.id, mode, answer)
+                    console.log('[/game/answer] DONE', JSON.stringify({ userId: user.id, mode, answer, isCorrect }))
         
                     return c.json({ isCorrect, results })
                 })
         } catch (error) {
-            console.error('[/game/answer] ERROR', user.id, mode, answer, JSON.stringify(error))
+            console.error('[/game/answer] ERROR', JSON.stringify({ userId: user.id, mode, answer }), JSON.stringify(error))
             return c.json({ error }, 500)
         }
     }
 
-    console.error('[/game/answer] FAILED - unknown game mode', user.id, mode, answer)
+    console.error('[/game/answer] FAILED - unknown game mode', JSON.stringify({ userId: user.id, mode, answer }))
     return c.json({ error: 'Unknown game mode' }, 400)
 })
 

@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
+import { fetchAndRetry } from '../util'
 
 dotenv.config()
 
@@ -18,7 +19,7 @@ api.post('/user/token', async (c) => {
 
     console.log('[/user/token] REAL - BEGIN')
     try {
-        const res = await fetch('https://discord.com/api/oauth2/token', {
+        const res = await fetchAndRetry('https://discord.com/api/oauth2/token', {
             method: 'POST',
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -55,7 +56,7 @@ api.post('/user/auth', async (c) => {
             profilePictureUrl = null
             console.log('[/user/auth] MOCK - BEGIN')
         } else {
-            const res = await fetch(`${process.env.DISCORD_API_HOST}/users/@me`, {
+            const res = await fetchAndRetry(`${process.env.DISCORD_API_HOST}/users/@me`, {
                 method: 'GET',
                 headers: {
                     "Authorization": `Bearer ${access_token}`,

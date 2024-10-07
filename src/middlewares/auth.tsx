@@ -29,7 +29,7 @@ async function Auth(c: Context, next: () => Promise<void>) {
         })
 
         if (!session || session.token !== token || session.expiredAt <= new Date() || !session.user || session.user.id !== decoded.userId) {
-            console.error('INVALID TOKEN', session?.expiredAt, session?.token, session?.userId, decoded.sessionId, decoded.userId)
+            console.error('INVALID TOKEN', JSON.stringify({ sessionExpiredAt: session?.expiredAt, userId: session?.userId, sessionId: decoded.sessionId, userIdFromSessionDb: decoded.userId }))
             return c.json({ error: 'Unauthorized' }, 401)
         }
 

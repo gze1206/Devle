@@ -52,12 +52,11 @@ function Test() {
                         })
                     })
                     const { access_token } = await res.json()
+                    accessToken = access_token
 
                     await discord.commands.authenticate({
                         access_token: accessToken,
                     })
-                    
-                    accessToken = access_token
                 }
 
                 const res = await fetch('/api/user/auth', {

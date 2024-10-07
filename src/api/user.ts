@@ -24,11 +24,11 @@ api.post('/user/token', async (c) => {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
-                client_id: process.env.VITE_DISCORD_CLIENT_ID,
-                client_secret: process.env.DISCORD_CLIENT_SECRET,
+                client_id: process.env.VITE_DISCORD_CLIENT_ID!,
+                client_secret: process.env.DISCORD_CLIENT_SECRET!,
                 grant_type: 'authorization_code',
                 code: code,
-            } as Record<string, string>),
+            }),
         })
     
         const { access_token } = await res.json()
